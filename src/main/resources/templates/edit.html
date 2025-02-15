@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head>
+  <meta charset="UTF-8">
+  <title>Patch</title>
+</head>
+<body>
+<form th:method="POST" th:action="@{/admin/update}" th:object="${user}">
+  <input type="hidden" th:field="*{id}" />
+
+  <label for="name">Enter name: </label>
+  <input type="text" th:field="*{username}" id="name"/>
+  <div style="color:mediumvioletred" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Name error</div>
+  <br/>
+  <label for="age">Enter age: </label>
+  <input type="text" th:field="*{age}" id="age">
+  <div style="color:mediumvioletred" th:if="${#fields.hasErrors('age')}" th:errors="*{age}">Age error</div>
+  <br/>
+  <label for="email">Enter email: </label>
+  <input type="text" th:field="*{email}" id="email">
+  <div style="color:mediumvioletred" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email error</div>
+  <br/>
+  <label for="password">Enter password: </label>
+  <input type="password" th:field="*{password}" id="password" required>
+  <div style="color: #00ff00" th:if="${#fields.hasErrors('password')}">Password error</div>
+  <br/>
+  <label for="roles">Choose role: </label>
+  <select th:field="*{role}" id="roles">
+    <option th:each="role : ${roles}" th:value="${role.role}" th:text="${role.role}"></option>
+  </select>
+  <br/>
+  <input type="submit" value="Update"/>
+</form>
+</body>
+</html>
