@@ -12,5 +12,9 @@
 <p>Роли:
     <span th:each="role : ${user.authorities}" th:text="${role.authority} + ' '"></span>
 </p>
+<br/>
+<form action="/logout" method="post">
+    <button type="submit">Выйти</button>
+</form>
 </body>
 </html>
