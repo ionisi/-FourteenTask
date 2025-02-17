@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>UserInfo</title>
+</head>
+<body>
+<h1>Данные пользователя</h1>
+<p>Имя: <span th:text="${user.username}"></span> </p>
+<p>Возраст: <span th:text="${user.age}"></span> </p>
+<p>Электронная почта: <span th:text="${user.email}"></span> </p>
+<p>Роли:
+    <span th:each="role : ${user.authorities}" th:text="${role.authority} + ' '"></span>
+</p>
+</body>
+</html>
