@@ -33,7 +33,7 @@ public class User implements UserDetails {
     @Size(min = 2, max = 100, message = "Длина пароля должна быть от 2 до 300000 символов")
     @Column(name = "password", length = 100)
     private String password;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),

@@ -54,7 +54,7 @@ public class UserDAOImp implements UserDAO {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         List<Role> roles = user.getRole().stream()
-                .map(role -> entityManager.find(Role.class, role.getRole()))
+                .map(role -> entityManager.find(Role.class, role.getId()))
                 .filter(Objects::nonNull)
                 .toList();
 
@@ -101,7 +101,7 @@ public class UserDAOImp implements UserDAO {
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
-        return entityManager.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
+        return entityManager.createQuery("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.username = :username", User.class)
                 .setParameter("username", username)
                 .getResultStream()
                 .findFirst();
