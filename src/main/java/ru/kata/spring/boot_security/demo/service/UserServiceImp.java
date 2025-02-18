@@ -19,19 +19,19 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<User> getAll() {
         return userDAO.getAll();
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<User> getByEmail(String email) {
         return userDAO.getByEmail(email);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public User getById(int id) {
         return userDAO.getById(id);
     }
@@ -55,7 +55,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
         return userDAO.findByUsername(username);
     }
