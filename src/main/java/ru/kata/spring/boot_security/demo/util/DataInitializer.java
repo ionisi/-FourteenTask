@@ -46,7 +46,7 @@ public class DataInitializer implements ApplicationRunner {
             admin.setPassword("adminpassword");
             admin.setAge(100);
             admin.setEmail("admin@email.com");
-            admin.setRole(Collections.singletonList(adminRole));
+            admin.setRoles(Collections.singletonList(adminRole));
             userService.save(admin);
         }
     }

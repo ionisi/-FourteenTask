@@ -14,8 +14,10 @@ import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.util.UserValidator;
 
-import java.util.Collections;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Controller
@@ -55,7 +57,7 @@ public class AdminController {
 
     @PostMapping("/users")
     public String create(@ModelAttribute("user") @Valid User user,
-                         @RequestParam("role") Role role,
+                         @RequestParam("roles") List<Integer> roleids,
                          BindingResult bindingResult) {
         userValidator.validate(user, bindingResult);
 
@@ -63,7 +65,8 @@ public class AdminController {
             return "new";
         }
 
-        user.setRole(Collections.singletonList(role));
+        List<Role> roles = roleids.stream().map(roleService::getById).filter(Objects::nonNull).toList();
+        user.setRoles(new ArrayList<>(roles));
         userService.save(user);
         return "redirect:/admin";
     }
@@ -78,12 +81,18 @@ public class AdminController {
 
     @PostMapping("/update")
     public String update(@ModelAttribute("user") @Valid User user,
-                         BindingResult bindingResult, @RequestParam("id") int id) {
+                         BindingResult bindingResult, @RequestParam("id") int id,
+                         @RequestParam("roles") List<Integer> roleids) {
         userValidator.validate(user, bindingResult);
 
         if (bindingResult.hasErrors()) {
             return "edit";
         }
+        List<Role> roles = roleids.stream().map(roleService::getById).filter(Objects::nonNull).toList();
+
+
+        user.setRoles(new ArrayList<>(roles));
+        System.out.println(user.getRoles().getClass());
         userService.update(id, user);
         return "redirect:/admin";
     }

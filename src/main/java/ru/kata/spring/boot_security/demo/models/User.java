@@ -91,12 +91,12 @@ public class User implements UserDetails {
         return username;
     }
 
-    public List<Role> getRole() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRole(List<Role> role) {
-        this.roles = role;
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 
 

@@ -23,12 +23,12 @@
     <input type="password" th:field="*{password}" id="password" required>
     <div style="color: mediumvioletred" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password error</div>
     <br/>
-    <label for="role">Выберите роль: </label>
-    <select th:field="*{role}" id="role" required>
+    <label for="role">Выберите роли: </label>
+    <select th:field="*{roles}" id="role" required multiple>
         <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.role}"></option>
     </select>
     <br/>
-    <input type="submit" value="Сохранить">
+    <button type="submit" class="btn btn-primary">Сохранить</button>
 </form>
 
 <a href="/admin" class="btn">Назад</a>

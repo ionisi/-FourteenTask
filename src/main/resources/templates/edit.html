@@ -25,8 +25,8 @@
   <div style="color: #00ff00" th:if="${#fields.hasErrors('password')}">Password error</div>
   <br/>
   <label for="roles">Choose role: </label>
-  <select th:field="*{role}" id="roles">
-    <option th:each="role : ${roles}" th:value="${role.role}" th:text="${role.role}"></option>
+  <select th:field="*{roles}" id="roles">
+    <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.role}"></option>
   </select>
   <br/>
   <input type="submit" value="Update"/>

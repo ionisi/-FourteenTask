@@ -3,26 +3,28 @@ package ru.kata.spring.boot_security.demo.dao;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserDAOImp implements UserDAO {
 
     @PersistenceContext
     private EntityManager entityManager;
-
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
+    @Lazy
     public UserDAOImp(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
@@ -36,7 +38,7 @@ public class UserDAOImp implements UserDAO {
     @Override
     @Transactional(readOnly = true)
     public Optional<User> getByEmail(String email) {
-        return entityManager.createQuery("SELECT p FROM User p WHERE p.email = :email", User.class)
+        return entityManager.createQuery("SELECT p FROM User p LEFT JOIN FETCH p.roles WHERE p.email = :email", User.class)
                 .setParameter("email", email)
                 .getResultStream()
                 .findFirst();
@@ -52,13 +54,12 @@ public class UserDAOImp implements UserDAO {
     @Transactional
     public void save(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        List<Role> roles = user.getRole().stream()
+        List<Role> roles = user.getRoles().stream()
                 .map(role -> entityManager.find(Role.class, role.getId()))
                 .filter(Objects::nonNull)
                 .toList();
 
-        user.setRole(roles);
+        user.setRoles(new ArrayList<>(roles));
 
         for (Role role : roles) {
             role.getUsers().add(user);
@@ -80,11 +81,12 @@ public class UserDAOImp implements UserDAO {
             if (!user.getPassword().equals(existingUser.getPassword())) {
                 existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
             }
-            List<Role> roles = user.getRole().stream()
+            List<Role> roles = user.getRoles().stream()
                     .map(role -> entityManager.find(Role.class, role.getId()))
                     .filter(Objects::nonNull)
                     .toList();
-            existingUser.setRole(roles);
+            existingUser.getRoles().clear();
+            existingUser.setRoles(new ArrayList<>(roles));
         }
         entityManager.merge(existingUser);
     }
