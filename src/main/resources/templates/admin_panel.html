@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="en">
+<head>
+    <title>Admin panel</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+              margin: 0;
+              padding: 0;
+              display: flex;
+              flex-direction: column;
+              height: 100vh;
+          }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .sidebar {
+            width: 240px;
+            height: calc(100vh - 56px);
+            position: fixed;
+            top: 56px;
+            left: 0;
+            padding: 20px 0 0 0;
+            background-color: #ffffff;
+            z-index: 999;
+        }
+
+        .sidebar .nav {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            width: 100%;
+        }
+
+        .sidebar .nav-link {
+            justify-content: left;
+            align-items: center;
+            padding: 10px 0 10px 10px;
+            width: 100% !important;
+            color: blue;
+            text-align: left;
+            display: flex;
+        }
+
+        .sidebar .nav-item {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        .sidebar .nav-link.active {
+            background: royalblue;
+            color: white;
+        }
+
+        .content-container {
+            margin-left: 200px;
+            margin-top: 50px;
+            height: calc(100vh - 56px);
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .nav-link {
+            color: blue;
+            width: 100%;
+            text-align: left;
+        }
+
+        .btn-group .btn {
+            background-color: #f8f9fa;
+            color: blue;
+            border: none;
+        }
+
+        .btn-group .btn.active {
+            background-color: white;
+            color: gray;
+        }
+
+        .new-user-container {
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            background-color: white;
+            margin-top: 0;
+            max-width: 100%;
+            place-items: center;
+            text-align: center;
+        }
+
+        .new-user-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 0;
+            text-align: left;
+            font-size: 14px;
+            border: 1px solid #dee2e6;
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: white;
+            margin-bottom: 15px;
+        }
+
+        .password-container .input-group {
+            width: 100%;
+        }
+
+        .password-container .input-group .btn {
+            border: 1px solid #ced4da;
+            border-left: none;
+            height: 38px;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-container .input-group .btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .password-container .input-group .btn i {
+            font-size: 1.2em;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        .user-table-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 0;
+            text-align: left;
+            font-size: 14px;
+            border: 1px solid #dee2e6;
+        }
+
+        .user-info-container {
+            border: 1px solid #dee2e6;
+            padding: 20px 30px 20px 20px;
+            background-color: white;
+            margin-top: 0;
+        }
+
+        .user-info-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 0;
+            text-align: left;
+            font-size: 14px;
+            border: 1px solid #dee2e6;
+        }
+
+        .role-select {
+            width: 100%;
+            height: auto;
+            padding: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+        }
+
+        .modal-container {
+            position: fixed;
+            top: 48%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 500px;
+            z-index: 1001;
+            display: none;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 15px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .modal-header h4 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .close-button {
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .close-button:hover {
+            color: #000;
+        }
+
+        .modal-content {
+            padding: 0;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .detail-item label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .detail-item .form-control {
+            width: 40%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #837e7e;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 15px;
+            border-top: 1px solid #e5e5e5;
+            width: 100%;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .form-control.roles {
+            width: 100%;
+            max-width: 250px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+            display: block;
+            max-height: 80px;
+            overflow-y: auto;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid d-flex justify-content-between">
+        <span class="text-white">
+            <strong th:text="${#authentication.principal.email}"></strong>
+            <span>
+                with roles:
+                <span th:each="authorities, iterStat : ${#authentication.principal.authorities}"
+                      th:with="roleName=${authorities.authority.replace('ROLE_', '')}"
+                      th:text="${roleName + (iterStat.last ? '' : ', ')}"></span>
+            </span>
+        </span>
+        <a href="/logout" class="btn btn-link text-white" style="text-decoration: none;">Logout</a>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col d-none d-md-block sidebar">
+            <ul class="nav flex-column">
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" id="admin-tab" href="#">Admin</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="user-tab" href="#">User</a>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="col-md-10 ms-sm-auto px-4 content-container">
+            <div class="admin-panel-header" id="admin-panel-header">
+                <h1>Admin panel</h1>
+            </div>
+            <div class="btn-group" role="group" id="admin-buttons" sec:authorize="hasRole('ADMIN')">
+                <button class="btn btn-primary active" id="users-table-tab">Users table</button>
+                <button class="btn btn-secondary" id="new-user-tab">New User</button>
+            </div>
+
+            <div id="users-table-content" sec:authorize="hasRole('ADMIN')">
+                <div class="user-table-header">
+                    <h4>All users</h4>
+                </div>
+                <div th:if="${successMessage}" class="alert alert-success" role="alert">
+                    <span th:text="${successMessage}"></span>
+                </div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Age</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.id}"></td>
+                        <td th:text="${user.firstname}"></td>
+                        <td th:text="${user.lastname}"></td>
+                        <td th:text="${user.age}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td>
+                             <span th:each="role, iterStat : ${user.roles}"
+                                   th:text="${role.role.replace('ROLE_', '') + (iterStat.last ? '' : ', ')}">
+                             </span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-info"
+                                    th:attr="onclick=|openEditModal('${user.id}', '${user.firstname}', '${user.lastname}', '${user.age}', '${user.email}', '${#strings.listJoin(roles.![role.replace('ROLE_', '')], ', ')}')|">
+                                Edit
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger"
+                                    th:attr="onclick=|openDeleteModal('${user.id}', '${user.firstname}', '${user.lastname}', '${user.age}', '${user.email}', '${#strings.listJoin(user.roles.![role.replace('ROLE_', '')], ', ')}')|">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="new-user-content" style="display: none;" sec:authorize="hasRole('ADMIN')">
+                <div class="new-user-header">
+                    <h4>Add new user</h4>
+                </div>
+                <div class="new-user-container">
+                    <form th:method="post" th:object="${user}" th:action="@{/admin/users}" id="new-user-form">
+                        <div class="mb-3">
+                            <label class="form-label" for="firstname">First name</label>
+                            <input type="text" class="form-control" th:field="*{firstname}" required id="firstname"
+                                   name="firstname" placeholder="First name">
+                            <div style="color:mediumvioletred" th:if="${#fields.hasErrors('firstname')}"
+                                 th:errors="*{firstname}">Name error
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="lastname">Last name</label>
+                            <input type="text" class="form-control" th:field="*{lastname}" required id="lastname"
+                                   name="lastname" placeholder="Last name">
+                            <div style="color:mediumvioletred" th:if="${#fields.hasErrors('lastname')}"
+                                 th:errors="*{lastname}">Name error
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="age">Age</label>
+                            <input type="number" class="form-control" min="0" step="1"
+                                   th:field="*{age}" required id="age" name="age" placeholder="Age">
+                            <div style="color:mediumvioletred" th:if="${#fields.hasErrors('age')}" th:errors="*{age}">
+                                Age error
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="email">Email</label>
+                            <input type="email" class="form-control"
+                                   th:field="*{email}" required id="email" name="email" placeholder="Email">
+                            <div style="color:mediumvioletred" th:if="${#fields.hasErrors('email')}"
+                                 th:errors="*{email}">Email error
+                            </div>
+                        </div>
+                        <div class="password-container">
+                            <label class="form-label" for="password">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" th:field="*{password}"
+                                       required
+                                       placeholder="Password">
+
+                                <button type="button" class="btn btn-outline-secondary"
+                                        onclick="togglePasswordVisibility()">
+                                    <i class="bi bi-eye" id="password-toggle-icon"></i>
+                                </button>
+                            </div>
+                            <div style="color: mediumvioletred" th:if="${#fields.hasErrors('password')}"
+                                 th:errors="*{password}">Password error
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label" for="roles">Role</label>
+                            <div class="role-select">
+                                <select class="form-control" th:field="*{roles}" multiple required id="roles"
+                                        name="roles">
+                                    <option th:each="role : ${roles}" th:value="${role.id}"
+                                            th:text="${role.role.replace('ROLE_', '')}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-success mt-3" type="submit">Add new user</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="user-info-content" style="display: none;" sec:authorize="isAuthenticated()">
+                <div class="user-info-header">
+                    <h4>About user</h4>
+                </div>
+                <div class="user-info-container">
+                    <div class="about-user">
+                        <table class="table" id="users-table">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Age</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                            </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                            <tr>
+                                <td th:text="${#authentication.principal.id}"></td>
+                                <td th:text="${#authentication.principal.firstname}"></td>
+                                <td th:text="${#authentication.principal.lastname}"></td>
+                                <td th:text="${#authentication.principal.age}"></td>
+                                <td th:text="${#authentication.principal.email}"></td>
+                                <td>
+                                    <span th:each="authorities, iterStat : ${#authentication.principal.authorities}"
+                                          th:with="roleName=${authorities.authority.replace('ROLE_', '')}"
+                                          th:text="${roleName + (iterStat.last ? '' : ', ')}"></span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div id="overlay" class="overlay" onclick="closeModal()"></div>
+
+<div id="deleteModal" class="modal-container">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>Delete User</h4>
+            <span class="close-button" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="user-details">
+            <div class="detail-item">
+                <label for="deleteId">ID</label>
+                <span id="deleteId" class="form-control"></span>
+            </div>
+            <div class="detail-item">
+                <label for="deleteFirstName">First Name</label>
+                <span id="deleteFirstName" class="form-control"></span>
+            </div>
+            <div class="detail-item">
+                <label for="deleteLastName">Last Name</label>
+                <span id="deleteLastName" class="form-control"></span>
+            </div>
+            <div class="detail-item">
+                <label for="deleteAge">Age</label>
+                <span id="deleteAge" class="form-control"></span>
+            </div>
+            <div class="detail-item">
+                <label for="deleteEmail">Email</label>
+                <span id="deleteEmail" class="form-control"></span>
+            </div>
+            <div class="detail-item">
+                <label for="deleteRole">Role</label>
+                <div id="deleteRole" class="form-control roles"></div>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+            <button type="button" class="btn btn-danger"
+                    th:onclick="|deleteUser()|">Delete</button>
+            <input type="hidden" id="deleteUserId">
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="modal-container">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>Edit User</h4>
+            <span class="close-button" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="user-details">
+            <div class="detail-item">
+                <label for="editId">ID</label>
+                <span id="editId" class="form-control"></span>
+            </div>
+            <div class="detail-item">
+                <label for="editFirstName">First Name</label>
+                <input type="text" id="editFirstName" class="form-control">
+            </div>
+            <div class="detail-item">
+                <label for="editLastName">Last Name</label>
+                <input type="text" id="editLastName" class="form-control">
+            </div>
+            <div class="detail-item">
+                <label for="editAge">Age</label>
+                <input type="number" id="editAge" class="form-control">
+            </div>
+            <div class="detail-item">
+                <label for="editEmail">Email</label>
+                <input type="email" id="editEmail" class="form-control">
+            </div>
+            <div class="detail-item">
+                <label for="editPassword">Password</label>
+                <input type="password" id="editPassword" class="form-control">
+            </div>
+            <div class="detail-item">
+                <label for="editRole">Role</label>
+                <select id="editRole" class="form-control roles" multiple>
+                    <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.role.replace('ROLE_', '')}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+            <button type="button" class="btn-info" onclick="userUpdate()">Edit</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        if ($("li.nav-item a#admin-tab").hasClass("active")) {
+            $("#admin-buttons").click();
+            $("#users-table-content").show();
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab === 'user-info') {
+            $("#user-tab").addClass("active"); // Добавляем активный класс
+            $("#admin-tab").removeClass("active");
+
+            $("#admin-panel-header h1").text("User-information page");
+            $("#admin-buttons").hide();
+            $("#users-table-content").hide();
+            $("#new-user-content").hide();
+            $("#user-info-content").show();
+        } else if (tab === 'users') {
+            $("#admin-tab").addClass("active");
+            $("#user-tab").removeClass("active");
+
+            $("#admin-panel-header h1").text("Admin panel");
+            $("#admin-buttons").show();
+            $("#users-table-content").show();
+            $("#new-user-content").hide();
+            $("#user-info-content").hide();
+        }
+
+
+        $(".nav-link").click(function () {
+            $(".nav-link").removeClass("active");
+            $(this).addClass("active");
+
+            if (this.id === "admin-tab") {
+                $("#admin-panel-header h1").text("Admin panel");
+                $("#admin-buttons").show();
+                $("#users-table-content").show();
+                $("#new-user-content").hide();
+                $("#user-info-content").hide();
+            } else if (this.id === "user-tab") {
+                $("#admin-panel-header h1").text("User-information page");
+                $("#admin-buttons").hide();
+                $("#users-table-content").hide();
+                $("#new-user-content").hide();
+                $("#user-info-content").show();
+            }
+        });
+
+        $("#users-table-tab").click(function () {
+            $("#users-table-tab").addClass("active").removeClass("btn-secondary");
+            $("#new-user-tab").removeClass("active").addClass("btn-secondary");
+            $("#users-table-content").show();
+            $("#new-user-content").hide();
+            $("#user-info-content").hide();
+        });
+
+        $("#new-user-tab").click(function () {
+            $("#new-user-tab").addClass("active").removeClass("btn-secondary");
+            $("#users-table-tab").removeClass("active").addClass("btn-secondary");
+            $("#users-table-content").hide();
+            $("#new-user-content").show();
+            $("#user-info-content").hide();
+        });
+
+
+
+        document.getElementById('new-user-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const form = event.target;
+            document.querySelectorAll('.text-danger').forEach(el => el.remove());
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (data.email) {
+                    displayValidationErrors(data);
+                } else {
+                    document.querySelectorAll('.error-message').forEach(el => el.remove());
+                    form.reset();
+                    await updateUserTable();
+                    $("#users-table-tab").click();
+                    showSuccessMessage(data.successMessage);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showErrorMessage('An error occurred while processing your request.');
+            }
+        });
+        window.togglePasswordVisibility = togglePasswordVisibility;
+    });
+
+    function togglePasswordVisibility() {
+        var passwordField = document.getElementById("password");
+        var icon = document.getElementById("password-toggle-icon");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        } else {
+            passwordField.type = "password";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        }
+    }
+
+    async function updateUserTable() {
+        try {
+            const usersResponse = await fetch('/admin/api/users');
+            const users = await usersResponse.json();
+            showUserTable(users);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    }
+
+    function displayValidationErrors(errors) {
+        // Очищаем предыдущие ошибки
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+
+        for (const [field, message] of Object.entries(errors)) {
+            const input = document.querySelector(`[name="${field}"]`);
+            if (input) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.style.color = 'mediumvioletred';
+                errorDiv.textContent = message;
+                input.parentNode.insertBefore(errorDiv, input.nextSibling);
+            }
+        }
+    }
+
+    function showUserTable(users) {
+        const userTableBody = document.querySelector('#users-table-content tbody');
+        if (!userTableBody) {
+            console.error('Table body not found');
+            return;
+        }
+
+        userTableBody.innerHTML = ''; // Очищаем таблицу перед обновлением
+
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+            <td xmlns="http://www.w3.org/1999/html">${user.id}</td>
+            <td>${user.firstname}</td>
+            <td>${user.lastname}</td>
+            <td>${user.age}</td>
+            <td>${user.email}</td>
+            <td>${user.roles.map(role => role.role.replace('ROLE_', '')).join(', ')}</td>
+            <td>
+                <button type= "button" class="btn btn-info"
+                        onclick="openEditModal('${user.id}', '${user.firstname}', '${user.lastname}', '${user.age}', '${user.email}', '${user.password}', '${user.roles.map(role => role.role.replace('ROLE_', '')).join(', ')}')">
+                    Edit
+                </button>
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger"
+                        onclick="openDeleteModal('${user.id}', '${user.firstname}', '${user.lastname}', '${user.age}', '${user.email}', '${user.roles.map(role => role.role.replace('ROLE_', '')).join(', ')}')">
+                    Delete
+                </button>
+            </td>
+        `;
+            userTableBody.appendChild(row);
+        });
+
+        // Переключаемся на вкладку с таблицей пользователей
+        document.getElementById('users-table-tab').click();
+    }
+
+    function showSuccessMessage(message) {
+        const successMessageDiv = document.createElement('div');
+        successMessageDiv.className = 'alert alert-success';
+        successMessageDiv.textContent = message;
+
+        const container = document.querySelector('.new-user-container');
+        if (container) {
+            container.insertBefore(successMessageDiv, container.firstChild);
+
+            // Убираем сообщение через 5 секунд
+            setTimeout(() => successMessageDiv.remove(), 5000);
+        } else {
+            console.error('Container for success message not found');
+        }
+    }
+
+    function openDeleteModal(id, firstname, lastname, age, email, roles) {
+        document.getElementById('deleteId').textContent = id;
+        document.getElementById('deleteFirstName').textContent = firstname;
+        document.getElementById('deleteLastName').textContent = lastname;
+        document.getElementById('deleteAge').textContent = age;
+        document.getElementById('deleteEmail').textContent = email;
+
+        const rolesContainer = document.getElementById('deleteRole');
+        rolesContainer.innerHTML = '';
+
+        roles.split(', ').forEach(role => {
+            const roleElement = document.createElement('div');
+            roleElement.textContent = role.trim();
+            rolesContainer.appendChild(roleElement);
+        });
+
+        document.getElementById('deleteUserId').value = id;
+        document.getElementById('deleteModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    async function deleteUser() {
+        const userId = document.getElementById('deleteUserId').value;
+
+        try {
+            const response = await fetch(`/admin/delete/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete user');
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                closeModal();
+                await updateUserTable();
+            } else {
+                throw new Error(data.message || 'Failed to delete user');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showErrorMessage('An error occurred while deleting the user.');
+        }
+    }
+
+    function closeModal() {
+        const modals = document.querySelectorAll('.modal-container');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+        });
+        document.getElementById('overlay').style.display = 'none';
+    }
+
+    function openEditModal(id, firstname, lastname, age, email, roles) {
+        document.getElementById('editId').textContent = id;
+        document.getElementById('editFirstName').value = firstname;
+        document.getElementById('editLastName').value = lastname;
+        document.getElementById('editAge').value = age;
+        document.getElementById('editEmail').value = email;
+        document.getElementById('editPassword').value = "";
+
+        const rolesSelect = document.getElementById('editRole');
+        const userRoles = new Set(roles.split(',').map(id => id.trim()));
+
+        fetch('/admin/roles')
+            .then(res => res.json())
+            .then(allRoles => {
+                rolesSelect.innerHTML = allRoles.map(role =>
+                    `<option value="${role.id}" ${userRoles.has(String(role.id)) ? 'selected' : ''}>
+                    ${role.role.replace('ROLE_', '')}
+                </option>`).join('');
+            });
+
+        document.getElementById('editModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function userUpdate() {
+        const userData = {
+            id: document.getElementById('editId').textContent,
+            firstname: document.getElementById('editFirstName').value,
+            lastname: document.getElementById('editLastName').value,
+            age: document.getElementById('editAge').value,
+            email: document.getElementById('editEmail').value,
+            password: document.getElementById('editPassword').value,
+            roles: Array.from(document.getElementById('editRole').selectedOptions).map(option => option.value)
+        };
+
+        fetch('/admin/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                closeModal();
+                updateUserTable().then(() => {
+                    // Перенаправляем на вкладку с таблицей пользователей
+                    $("#users-table-tab").click();
+                });
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+
+    document.getElementById('overlay').addEventListener('click', closeModal);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
