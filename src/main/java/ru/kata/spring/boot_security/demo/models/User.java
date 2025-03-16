@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.models;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,8 +20,12 @@ public class User implements UserDetails {
     private int id;
     @NotEmpty(message = "Name shouldn't be empty")
     @Size(min = 2, max = 30, message = "Name should be between 2 and 30 characters")
-    @Column(name = "username")
-    private String username;
+    @Column(name = "firstname")
+    private String firstname;
+    @NotEmpty(message = "Name shouldn't be empty")
+    @Size(min = 2, max = 30, message = "Name should be between 2 and 30 characters")
+    @Column(name = "lastname")
+    private String lastname;
     @Min(value = 0, message = "Age should be greater than 0")
     @Max(value = 120, message = "Age should be valid")
     @Column(name = "age")
@@ -30,10 +35,11 @@ public class User implements UserDetails {
     @Column(name = "email")
     private String email;
     @NotEmpty
-    @Size(min = 2, max = 100, message = "Длина пароля должна быть от 2 до 300000 символов")
+    @Size(min = 2, max = 100, message = "Длина пароля должна быть от 2 до 100 символов")
     @Column(name = "password", length = 100)
     private String password;
     @ManyToMany(fetch = FetchType.LAZY)
+    @JsonManagedReference
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -41,34 +47,34 @@ public class User implements UserDetails {
     )
     private List<Role> roles;
 
-    public User() {}
+    public User() {
+    }
 
-    public User(String username, String email, String password, List<Role> roles) {
-        this.username = username;
+    public User(String firstname, String lastname, String email, String password, List<Role> roles) {
+        this.firstname = firstname;
+        this.lastname = lastname;
         this.email = email;
         this.password = password;
         this.roles = roles;
     }
 
-    public void setUsername(@NotEmpty(message = "Name shouldn't be empty") @Size(min = 2, max = 30, message = "Name should be between 2 and 30 characters") String username) {
-        this.username = username;
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
-    @Min(value = 0, message = "Age should be greater than 0")
-    @Max(value = 120, message = "Age should be valid")
     public int getAge() {
         return age;
     }
 
-    public void setAge(@Min(value = 0, message = "Age should be greater than 0") @Max(value = 120, message = "Age should be valid") int age) {
+    public void setAge(int age) {
         this.age = age;
     }
 
-    public @NotEmpty(message = "Email shouldn't be empty") @Email(message = "Email should be valid") String getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(@NotEmpty(message = "Email shouldn't be empty") @Email(message = "Email should be valid") String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -88,7 +94,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return firstname + " " + lastname;
     }
 
     public List<Role> getRoles() {
@@ -99,7 +105,6 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-
     public int getId() {
         return id;
     }
@@ -108,16 +113,28 @@ public class User implements UserDetails {
         this.id = id;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return  Objects.equals(username, user.username) && Objects.equals(email, user.email);
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(username, email);
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
+                '}';
     }
 }

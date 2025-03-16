@@ -75,7 +75,8 @@ public class UserDAOImp implements UserDAO {
     public void update(int id, User user) {
         User existingUser = entityManager.find(User.class, id);
         if (existingUser != null) {
-            existingUser.setUsername(user.getUsername());
+            existingUser.setFirstname(user.getFirstname());
+            existingUser.setLastname(user.getLastname());
             existingUser.setAge(user.getAge());
             existingUser.setEmail(user.getEmail());
             if (!user.getPassword().equals(existingUser.getPassword())) {
@@ -85,7 +86,8 @@ public class UserDAOImp implements UserDAO {
                     .map(role -> entityManager.find(Role.class, role.getId()))
                     .filter(Objects::nonNull)
                     .toList();
-            existingUser.getRoles().clear();
+            List<Role> rolesClear = new ArrayList<>(existingUser.getRoles());
+            rolesClear.clear();
             existingUser.setRoles(new ArrayList<>(roles));
         }
         entityManager.merge(existingUser);
@@ -103,8 +105,12 @@ public class UserDAOImp implements UserDAO {
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
-        return entityManager.createQuery("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.username = :username", User.class)
-                .setParameter("username", username)
+        String[] name = username.split(" ");
+        String firstname = name[0];
+        String lastname = name[1];
+        return entityManager.createQuery("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.firstname = :firstname AND u.lastname = :lastname", User.class)
+                .setParameter("firstname", firstname)
+                .setParameter("lastname", lastname)
                 .getResultStream()
                 .findFirst();
     }

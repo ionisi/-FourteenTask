@@ -40,9 +40,10 @@ public class DataInitializer implements ApplicationRunner {
 
 
         if (userService.getAll().stream()
-                .noneMatch(user -> user.getUsername().equals("admin"))) {
+                .noneMatch(user -> user.getUsername().equals("admin admin"))) {
             User admin = new User();
-            admin.setUsername("admin");
+            admin.setFirstname("admin");
+            admin.setLastname("admin");
             admin.setPassword("adminpassword");
             admin.setAge(100);
             admin.setEmail("admin@email.com");
