@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import ru.kata.spring.boot_security.demo.dto.UserCreateDTO;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.service.RoleServiceImpl;
 import ru.kata.spring.boot_security.demo.service.UserService;
+
 import java.util.Collections;
 
 @Component
@@ -22,7 +24,7 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
 
         Role adminRole = roleService.getRoleByName("ROLE_ADMIN").orElseGet(() -> {
             Role newAdminRole = new Role("ROLE_ADMIN");
@@ -39,13 +41,13 @@ public class DataInitializer implements ApplicationRunner {
 
         if (userService.getAll().stream()
                 .noneMatch(user -> user.getUsername().equals("admin admin"))) {
-            User admin = new User();
+            UserCreateDTO admin = new UserCreateDTO();
             admin.setFirstname("admin");
             admin.setLastname("admin");
             admin.setPassword("adminpassword");
             admin.setAge(100);
             admin.setEmail("admin@email.com");
-            admin.setRoles(Collections.singletonList(adminRole));
+            admin.setRoles(Collections.singletonList(1));
             userService.save(admin);
         }
     }

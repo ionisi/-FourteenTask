@@ -7,8 +7,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -77,16 +79,17 @@ public class UserDAOImp implements UserDAO {
             existingUser.setLastname(user.getLastname());
             existingUser.setAge(user.getAge());
             existingUser.setEmail(user.getEmail());
-            if (!user.getPassword().equals(existingUser.getPassword())) {
+            if (StringUtils.hasText(user.getPassword())
+                    && !passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
                 existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
             }
-            List<Role> roles = user.getRoles().stream()
-                    .map(role -> entityManager.find(Role.class, role.getId()))
-                    .filter(Objects::nonNull)
-                    .toList();
-            List<Role> rolesClear = new ArrayList<>(existingUser.getRoles());
-            rolesClear.clear();
-            existingUser.setRoles(new ArrayList<>(roles));
+            if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+                List<Role> roles = user.getRoles().stream()
+                        .map(role -> entityManager.find(Role.class, role.getId()))
+                        .filter(Objects::nonNull)
+                        .toList();
+                existingUser.setRoles(new ArrayList<>(roles));
+            }
         }
         entityManager.merge(existingUser);
     }
@@ -112,5 +115,4 @@ public class UserDAOImp implements UserDAO {
                 .getResultStream()
                 .findFirst();
     }
-
 }

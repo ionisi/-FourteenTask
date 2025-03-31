@@ -1,9 +1,6 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
-
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,12 +17,10 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.util.UserMapper;
 import ru.kata.spring.boot_security.demo.util.UserValidator;
 
-
 import java.util.*;
 
-
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/users")
 public class AdminController {
 
 
@@ -43,44 +38,32 @@ public class AdminController {
     }
 
     @GetMapping
-    public String index(Model model, HttpServletRequest request,
-                        @ModelAttribute("user") User user) {
-        model.addAttribute("request", request);
+    public String index(Model model, @ModelAttribute("user") User user) {
         model.addAttribute("users", userService.getAll());
         model.addAttribute("roles", roleService.getAll());
-
         return "admin_panel";
     }
 
-    @PostMapping("/users")
+    @PostMapping
     @ResponseBody
     public ResponseEntity<?> create(@ModelAttribute("user") @Valid UserCreateDTO userCreateDTO,
                                     BindingResult bindingResult) {
         userValidator.validate(userCreateDTO, bindingResult);
         if (bindingResult.hasErrors()) {
-            bindingResult.getFieldErrors().forEach(error ->
-                    System.out.println("Field: " + error.getField() + " - " + error.getDefaultMessage())
-            );
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest().body(errors);
+            String errorMessage = bindingResult.getFieldError().getDefaultMessage();
+            return ResponseEntity.badRequest().body(Map.of("error", errorMessage));
         }
-        User user = modelMapper.userCreateDtoToUser(userCreateDTO);
-        userService.save(user);
+        userService.save(userCreateDTO);
         return ResponseEntity.ok().body(Map.of("success", true, "successMessage", "User created successfully!"));
     }
 
-    @PostMapping("/update")
+    @PutMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<?> update(@RequestBody UserUpdateDTO dto) {
-        User user = userService.getById(dto.getId());
-        if (user == null) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "User not found"));
+    public ResponseEntity<?> update(@PathVariable int id, @RequestBody UserUpdateDTO dto) {
+        if (userService.getById(id) == null) {
+            return ResponseEntity.notFound().build();
         }
-        modelMapper.DtoToUser(dto, user);
-        userService.update(dto.getId(), user);
+        userService.update(id, dto);
         return ResponseEntity.ok().body(Map.of("success", true, "successMessage", "User updated!"));
     }
 
@@ -99,7 +82,7 @@ public class AdminController {
         return ResponseEntity.ok(roleService.getAll());
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     @ResponseBody
     public ResponseEntity<?> delete(@PathVariable int id) {
         userService.delete(id);

@@ -1,5 +1,4 @@
 package ru.kata.spring.boot_security.demo.models;
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;

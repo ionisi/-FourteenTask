@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.security.core.GrantedAuthority;
-
 import java.util.Set;
 
 @Entity
@@ -42,11 +41,11 @@ public class Role implements GrantedAuthority {
     }
 
 
-    public @NotEmpty String getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(@NotEmpty String role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
@@ -56,5 +55,10 @@ public class Role implements GrantedAuthority {
 
     public void setUsers(Set<User> users) {
         this.users = users;
+    }
+
+    @Override
+    public String toString() {
+        return this.role;
     }
 }

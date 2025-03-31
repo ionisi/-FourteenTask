@@ -399,7 +399,7 @@
                     <h4>Add new user</h4>
                 </div>
                 <div class="new-user-container">
-                    <form th:method="post" th:object="${user}" th:action="@{/admin/users}" id="new-user-form">
+                    <form th:method="post" th:object="${user}" th:action="@{/users}" id="new-user-form">
                         <div class="mb-3">
                             <label class="form-label" for="firstname">First name</label>
                             <input type="text" class="form-control" th:field="*{firstname}" required id="firstname"
@@ -706,7 +706,7 @@
 
     async function updateUserTable() {
         try {
-            const usersResponse = await fetch('/admin/api/users');
+            const usersResponse = await fetch('/users/api/users');
             const users = await usersResponse.json();
             showUserTable(users);
         } catch (error) {
@@ -809,7 +809,7 @@
         const userId = document.getElementById('deleteUserId').value;
 
         try {
-            const response = await fetch(`/admin/delete/${userId}`, {
+            const response = await fetch(`/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/json',
@@ -854,7 +854,7 @@
         const rolesSelect = document.getElementById('editRole');
         const userRoles = new Set(roles.split(',').map(id => id.trim()));
 
-        fetch('/admin/roles')
+        fetch('/users/roles')
             .then(res => res.json())
             .then(allRoles => {
                 rolesSelect.innerHTML = allRoles.map(role =>
@@ -868,6 +868,7 @@
     }
 
     function userUpdate() {
+        const userId = document.getElementById('editId').textContent;
         const userData = {
             id: document.getElementById('editId').textContent,
             firstname: document.getElementById('editFirstName').value,
@@ -878,8 +879,8 @@
             roles: Array.from(document.getElementById('editRole').selectedOptions).map(option => option.value)
         };
 
-        fetch('/admin/update', {
-            method: 'POST',
+        fetch(`/users/${userId}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -889,8 +890,8 @@
             .then(data => {
                 console.log('Success:', data);
                 closeModal();
-                updateUserTable().then(() => {
-                    // Перенаправляем на вкладку с таблицей пользователей
+                updateUserTable()
+                    .then(() => {
                     $("#users-table-tab").click();
                 });
             })
