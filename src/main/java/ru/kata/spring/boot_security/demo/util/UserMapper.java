@@ -10,8 +10,6 @@ import ru.kata.spring.boot_security.demo.dto.UserUpdateDTO;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
-import ru.kata.spring.boot_security.demo.service.UserService;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,15 +32,13 @@ public class AdminController {
     private final UserService userService;
     private final UserValidator userValidator;
     private final RoleService roleService;
-    private final PasswordEncoder passwordEncoder;
     private final UserMapper modelMapper;
 
     @Autowired
-    public AdminController(UserService userService, UserValidator userValidator, RoleService roleService, PasswordEncoder passwordEncoder, UserMapper modelMapper) {
+    public AdminController(UserService userService, UserValidator userValidator, RoleService roleService, UserMapper modelMapper) {
         this.userService = userService;
         this.userValidator = userValidator;
         this.roleService = roleService;
-        this.passwordEncoder = passwordEncoder;
         this.modelMapper = modelMapper;
     }
 
@@ -72,10 +69,7 @@ public class AdminController {
         }
         User user = modelMapper.userCreateDtoToUser(userCreateDTO);
         userService.save(user);
-        List<UserResponseDTO> users = userService.getAll().stream()
-                .map(modelMapper::userToUserResponseDTO)
-                .toList();
-        return ResponseEntity.ok().body(Map.of("success", true, "users", users, "successMessage", "User created successfully!"));
+        return ResponseEntity.ok().body(Map.of("success", true, "successMessage", "User created successfully!"));
     }
 
     @PostMapping(value = "/update", consumes = "application/json")
@@ -87,10 +81,7 @@ public class AdminController {
         }
         modelMapper.DtoToUser(dto, user);
         userService.update(dto.getId(), user);
-        List<UserResponseDTO> users = userService.getAll().stream()
-                .map(modelMapper::userToUserResponseDTO)
-                .toList();
-        return ResponseEntity.ok().body(Map.of("success", true, "users", users, "successMessage", "User updated!"));
+        return ResponseEntity.ok().body(Map.of("success", true, "successMessage", "User updated!"));
     }
 
     @GetMapping("/api/users")
