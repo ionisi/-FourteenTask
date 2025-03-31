@@ -72,7 +72,7 @@ public class AdminController {
         return ResponseEntity.ok().body(Map.of("success", true, "successMessage", "User created successfully!"));
     }
 
-    @PostMapping(value = "/update", consumes = "application/json")
+    @PostMapping("/update")
     @ResponseBody
     public ResponseEntity<?> update(@RequestBody UserUpdateDTO dto) {
         User user = userService.getById(dto.getId());
